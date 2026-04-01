@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Quiz List</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#f5f5f5;
+}
+
+/* Header */
+.header{
+background:#4CAF50;
+color:white;
+padding:15px;
+text-align:center;
+font-size:20px;
+}
+
+/* Container */
+.container{
+padding:15px;
+}
+
+/* Add Button */
+.add-btn{
+display:block;
+background:#4CAF50;
+color:white;
+text-align:center;
+padding:10px;
+border-radius:8px;
+margin-bottom:15px;
+text-decoration:none;
+font-weight:bold;
+}
+
+/* Card */
+.card{
+background:white;
+padding:15px;
+margin-bottom:10px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+display:flex;
+justify-content:space-between;
+align-items:center;
+transition:0.2s;
+}
+
+.card:hover{
+transform:scale(1.02);
+}
+
+/* Name */
+.name{
+font-size:16px;
+font-weight:bold;
+}
+
+/* Count */
+.count{
+background:#e0e0e0;
+padding:5px 10px;
+border-radius:20px;
+font-size:12px;
+margin-left:10px;
+}
+
+/* Buttons */
+.btn{
+padding:6px 10px;
+border-radius:5px;
+font-size:12px;
+text-decoration:none;
+color:white;
+margin-left:5px;
+cursor:pointer;
+}
+
+/* Colors */
+.start{ background:#2196F3; }
+.addq{ background:#ff9800; }
+.view{ background:#009688; }
+.bulk{ background:#9c27b0; }
+.edit{ background:#2196F3; }
+.delete{ background:#f44336; }
+
+/* Toggle */
+.toggle{
+padding:6px 10px;
+border:none;
+border-radius:5px;
+font-size:12px;
+margin-left:5px;
+color:white;
+cursor:pointer;
+}
+
+/* Back */
+.back{
+display:block;
+margin-top:15px;
+text-align:center;
+text-decoration:none;
+color:#333;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+Quiz List
+</div>
+
+<div class="container">
+
+<!-- Add Quiz -->
+<a href="/admin/add_quiz/{{ category_id }}" class="add-btn">+ Add Quiz</a>
+
+<!-- Quiz List -->
+{% for q in quizzes %}
+<div class="card">
+
+<div style="display:flex; align-items:center;">
+    <div class="name">{{ q[1] }}</div>
+    <div class="count">{{ q[2] }} Q</div>
+</div>
+
+<div style="display:flex; flex-wrap:wrap; gap:5px;">
+
+ 
+
+<a href="/admin/add_question/{{ q[0] }}" class="btn addq">Add Q</a>
+
+<a href="/admin/view_questions/{{ q[0] }}" class="btn view">View</a>
+
+<a href="/admin/bulk_add/{{ q[0] }}" class="btn bulk">Bulk</a>
+
+<!-- ✅ Toggle -->
+<a href="/admin/toggle_quiz/{{ q[0] }}">
+    <button class="toggle"
+        style="background:{{ 'green' if q[3]==1 else 'red' }}">
+        {{ 'ON' if q[3]==1 else 'OFF' }}
+    </button>
+</a>
+
+<!-- ✏️ Edit -->
+<a href="/admin/edit_quiz/{{ q[0] }}">
+    <button class="btn edit">Edit</button>
+</a>
+
+<!-- ❌ Delete -->
+<a href="/admin/delete_quiz/{{ q[0] }}"
+   onclick="return confirm('Delete quiz?')">
+    <button class="btn delete">Delete</button>
+</a>
+
+</div>
+
+</div>
+{% endfor %}
+
+<!-- Back -->
+<a href="/admin/category" class="back">⬅ Back</a>
+
+</div>
+
+</body>
+</html>

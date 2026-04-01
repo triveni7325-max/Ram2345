@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Quiz Categories</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#f5f5f5;
+}
+
+/* Header */
+.header{
+background:#4CAF50;
+color:white;
+padding:15px;
+font-size:20px;
+text-align:center;
+}
+
+/* Container */
+.container{
+padding:15px;
+}
+
+/* Add Button */
+.add-btn{
+display:block;
+background:#4CAF50;
+color:white;
+text-align:center;
+padding:10px;
+border-radius:8px;
+margin-bottom:15px;
+text-decoration:none;
+font-weight:bold;
+}
+
+/* Card */
+.card{
+background:white;
+padding:15px;
+margin-bottom:10px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+display:flex;
+justify-content:space-between;
+align-items:center;
+transition:0.2s;
+}
+
+.card:hover{
+transform:scale(1.02);
+}
+
+/* Name */
+.name{
+font-size:16px;
+font-weight:bold;
+color:black;
+text-decoration:none;
+}
+
+/* Count */
+.count{
+background:#e0e0e0;
+padding:5px 10px;
+border-radius:20px;
+font-size:12px;
+}
+
+/* Buttons */
+.btn{
+padding:5px 10px;
+border:none;
+border-radius:5px;
+color:white;
+font-size:12px;
+cursor:pointer;
+}
+
+/* Colors */
+.toggle{ }
+.edit{ background:#2196F3; }
+.delete{ background:#f44336; }
+
+a{
+text-decoration:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+Quiz Categories
+</div>
+
+<div class="container">
+
+<!-- Add -->
+<a href="/admin/add_category" class="add-btn">+ Add Category</a>
+
+{% for cat in data %}
+
+<div class="card">
+
+    <!-- Name -->
+    <a href="/admin/quiz/{{ cat[0] }}" style="flex:1;">
+        <div class="name">{{ cat[1] }}</div>
+    </a>
+
+    <!-- Right side -->
+    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+
+        <!-- Count -->
+        <div class="count">
+            {{ cat[2] }} Quiz
+        </div>
+
+        <!-- Toggle -->
+        <a href="/admin/toggle/{{ cat[0] }}">
+            <button class="btn toggle"
+                style="background:{{ 'green' if cat[3]==1 else 'red' }}">
+                {{ 'ON' if cat[3]==1 else 'OFF' }}
+            </button>
+        </a>
+
+        <!-- Edit -->
+        <a href="/admin/edit_category/{{ cat[0] }}">
+            <button class="btn edit">Edit</button>
+        </a>
+
+        <!-- Delete -->
+        <a href="/admin/delete_category/{{ cat[0] }}"
+           onclick="return confirm('Delete category?')">
+            <button class="btn delete">Delete</button>
+        </a>
+
+    </div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</body>
+</html>
