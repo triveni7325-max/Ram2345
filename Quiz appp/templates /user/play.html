@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Play Quiz</title>
+
+<style>
+body{
+    font-family:Arial;
+    background:#f5f5f5;
+    margin:0;
+}
+
+/* Timer */
+.timer-bar{
+    background:#222;
+    color:white;
+    padding:10px;
+    text-align:center;
+}
+
+/* Header */
+.header{
+    background:#4CAF50;
+    color:white;
+    padding:10px;
+    display:flex;
+    align-items:center;
+}
+
+/* Jump button */
+.jump-btn{
+    background:white;
+    color:black;
+    border:none;
+    padding:5px 10px;
+    border-radius:5px;
+    margin-right:10px;
+    cursor:pointer;
+}
+
+/* Jump box */
+.jump-box{
+    display:none;
+    position:absolute;
+    top:60px;
+    left:10px;
+    background:white;
+    padding:10px;
+    border-radius:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.2);
+    max-width:220px;
+}
+
+/* Question numbers */
+.jump-box button{
+    margin:3px;
+    padding:6px 10px;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    color:white;
+}
+
+/* Colors */
+.not-answered{ background:red; }
+.answered{ background:green; }
+.current{ background:#2196F3 !important; }
+
+/* Container */
+.container{
+    padding:15px;
+}
+
+.card{
+    background:white;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.option{
+    margin:8px 0;
+}
+
+button{
+    padding:10px 15px;
+    background:#4CAF50;
+    color:white;
+    border:none;
+    border-radius:5px;
+    margin-top:10px;
+    margin-right:8px;
+}
+
+.submit{
+    background:#f44336;
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- ✅ Timer (body में) -->
+<div class="timer-bar">
+⏰ Time Left: <span id="timer"></span>
+</div>
+
+<!-- Header -->
+<div class="header">
+    <button class="jump-btn" onclick="toggleJump()">☰</button>
+    <div>Quiz</div>
+</div>
+
+<!-- Jump Panel -->
+<div class="jump-box" id="jumpBox">
+    {% for q in questions %}
+        <button id="btn{{ loop.index0 }}" 
+                class="not-answered"
+                onclick="goToQuestion({{ loop.index0 }})">
+            {{ loop.index }}
+        </button>
+    {% endfor %}
+</div>
+
+<div class="container">
+
+<!-- ✅ IMPORTANT FIX -->
+<form id="quizForm" method="POST">
+
+{% for q in questions %}
+<div class="card question" {% if not loop.first %}style="display:none;"{% endif %}>
+
+<div><b>Q{{ loop.index }}:</b> {{ q[1] }}</div>
+
+<div class="option">
+<label><input type="radio" name="q{{ q[0] }}" value="A" onclick="markAnswered({{ loop.index0 }})"> {{ q[2] }}</label>
+</div>
+
+<div class="option">
+<label><input type="radio" name="q{{ q[0] }}" value="B" onclick="markAnswered({{ loop.index0 }})"> {{ q[3] }}</label>
+</div>
+
+<div class="option">
+<label><input type="radio" name="q{{ q[0] }}" value="C" onclick="markAnswered({{ loop.index0 }})"> {{ q[4] }}</label>
+</div>
+
+<div class="option">
+<label><input type="radio" name="q{{ q[0] }}" value="D" onclick="markAnswered({{ loop.index0 }})"> {{ q[5] }}</label>
+</div>
+
+</div>
+{% endfor %}
+
+<!-- Buttons -->
+<button type="button" id="prevBtn" onclick="prevQuestion()" style="display:none;">
+Previous
+</button>
+
+<button type="button" id="nextBtn" onclick="nextQuestion()">
+Next
+</button>
+
+<button type="button" class="submit" onclick="submitQuiz()" 
+style="display:none;" id="submitBtn">
+Submit
+</button>
+
+</form>
+
+</div>
+
+<script>
+
+let current = 0;
+let questions = document.getElementsByClassName("question");
+let total = questions.length;
+
+// show question
+function showQuestion(index){
+
+    for(let i=0;i<questions.length;i++){
+        questions[i].style.display="none";
+        document.getElementById("btn"+i).classList.remove("current");
+    }
+
+    questions[index].style.display="block";
+    document.getElementById("btn"+index).classList.add("current");
+
+    // prev
+    document.getElementById("prevBtn").style.display = index==0 ? "none" : "inline-block";
+
+    // next / submit
+    if(index === total-1){
+        document.getElementById("nextBtn").style.display = "none";
+        document.getElementById("submitBtn").style.display = "inline-block";
+    } else {
+        document.getElementById("nextBtn").style.display = "inline-block";
+        document.getElementById("submitBtn").style.display = "none";
+    }
+
+    current = index;
+}
+
+// next
+function nextQuestion(){
+    if(current < total-1){
+        showQuestion(current + 1);
+    }
+}
+
+// prev
+function prevQuestion(){
+    if(current > 0){
+        showQuestion(current - 1);
+    }
+}
+
+// jump
+function goToQuestion(index){
+    showQuestion(index);
+    document.getElementById("jumpBox").style.display = "none";
+}
+
+// toggle jump
+function toggleJump(){
+    let box = document.getElementById("jumpBox");
+    box.style.display = box.style.display === "block" ? "none" : "block";
+}
+
+// mark answered
+function markAnswered(index){
+    let btn = document.getElementById("btn"+index);
+    btn.classList.remove("not-answered");
+    btn.classList.add("answered");
+}
+
+// submit
+function submitQuiz(){
+    if(confirm("Submit quiz?")){
+        document.getElementById("quizForm").submit();
+    }
+}
+
+// start
+window.onload = function(){
+    showQuestion(0);
+    startTimer();
+}
+
+// ✅ TIMER
+let timeLeft = {{ quiz_time }} * 60;
+
+function startTimer(){
+
+    let timer = document.getElementById("timer");
+
+    let interval = setInterval(function(){
+
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+
+        timer.innerHTML = minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+
+        timeLeft--;
+
+        if(timeLeft < 0){
+            clearInterval(interval);
+            alert("Time Up! Auto Submit ⏰");
+            document.getElementById("quizForm").submit();
+        }
+
+    },1000);
+}
+
+</script>
+
+</body>
+</html>

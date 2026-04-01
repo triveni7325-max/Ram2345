@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Result</title>
+
+<style>
+body{
+    font-family:Arial;
+    background:#f5f5f5;
+    margin:0;
+    padding:15px;
+}
+
+/* Score Box */
+.score-box{
+    text-align:center;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    margin-bottom:20px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Question Card */
+.card{
+    background:white;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:15px;
+    display:none;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Option */
+.option{
+    display:flex;
+    align-items:center;
+    padding:10px;
+    border-radius:6px;
+    margin:8px 0;
+}
+
+/* hide default radio */
+.option input{
+    display:none;
+}
+
+/* custom radio */
+.custom-radio{
+    width:18px;
+    height:18px;
+    border:2px solid #aaa;
+    border-radius:50%;
+    margin-right:10px;
+    position:relative;
+}
+
+/* dot */
+.custom-radio::after{
+    content:"";
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    background:transparent;
+}
+
+/* ✔ Correct */
+.correct{
+    background:#c8e6c9;
+}
+.correct .custom-radio{
+    border-color:green;
+}
+
+/* fill only when selected + correct */
+.option input:checked + .custom-radio::after{
+    background:green;
+}
+
+/* ❌ Wrong */
+.wrong{
+    background:#ffcdd2;
+}
+.wrong .custom-radio{
+    border-color:red;
+}
+
+/* wrong selected */
+.wrong input:checked + .custom-radio::after{
+    background:red;
+}
+
+/* Buttons */
+.btn{
+    padding:10px 15px;
+    border:none;
+    border-radius:5px;
+    margin:10px 5px;
+    color:white;
+    cursor:pointer;
+    text-decoration:none;
+    display:inline-block;
+}
+
+.view{ background:#2196F3; }
+.home{ background:#4CAF50; }
+.prev{ background:#777; }
+.next{ background:#2196F3; }
+
+</style>
+</head>
+
+<body>
+
+<!-- RESULT BOX -->
+<div class="score-box" id="scoreBox">
+
+    <h2>Quiz Result</h2>
+
+    <p>✔ Right: {{ right }}</p>
+    <p>❌ Wrong: {{ wrong }}</p>
+    <p>⏭ Skipped: {{ skipped }}</p>
+
+    <h3>Total Score: {{ score }}</h3>
+
+    <button class="btn view" onclick="showSolution()">View Solution</button>
+    <a href="/" class="btn home">Back to Home</a>
+
+</div>
+
+<!-- QUESTIONS -->
+{% for r in result %}
+<div class="card question">
+
+    <div><b>Q{{ loop.index }}:</b> {{ r.question }}</div>
+
+    <!-- A -->
+    <label class="option 
+    {% if r.correct=='A' %}correct{% endif %}
+    {% if r.user=='A' and r.user!=r.correct %}wrong{% endif %}">
+        <input type="radio" disabled {% if r.user=='A' %}checked{% endif %}>
+        <span class="custom-radio"></span>
+        A. {{ r.A }}
+    </label>
+
+    <!-- B -->
+    <label class="option 
+    {% if r.correct=='B' %}correct{% endif %}
+    {% if r.user=='B' and r.user!=r.correct %}wrong{% endif %}">
+        <input type="radio" disabled {% if r.user=='B' %}checked{% endif %}>
+        <span class="custom-radio"></span>
+        B. {{ r.B }}
+    </label>
+
+    <!-- C -->
+    <label class="option 
+    {% if r.correct=='C' %}correct{% endif %}
+    {% if r.user=='C' and r.user!=r.correct %}wrong{% endif %}">
+        <input type="radio" disabled {% if r.user=='C' %}checked{% endif %}>
+        <span class="custom-radio"></span>
+        C. {{ r.C }}
+    </label>
+
+    <!-- D -->
+    <label class="option 
+    {% if r.correct=='D' %}correct{% endif %}
+    {% if r.user=='D' and r.user!=r.correct %}wrong{% endif %}">
+        <input type="radio" disabled {% if r.user=='D' %}checked{% endif %}>
+        <span class="custom-radio"></span>
+        D. {{ r.D }}
+    </label>
+
+    <!-- ✅ YOUR ANSWER -->
+    <div style="margin-top:8px;">
+        Your Answer: 
+        <b style="color:
+        {% if r.user is none %}gray
+        {% elif r.user==r.correct %}green
+        {% else %}red
+        {% endif %}">
+
+        {% if r.user=='A' %}A. {{ r.A }}
+        {% elif r.user=='B' %}B. {{ r.B }}
+        {% elif r.user=='C' %}C. {{ r.C }}
+        {% elif r.user=='D' %}D. {{ r.D }}
+        {% else %}Not Attempted
+        {% endif %}
+
+        </b>
+    </div>
+
+</div>
+{% endfor %}
+
+<!-- NAVIGATION -->
+<div id="navBtns" style="text-align:center; display:none;">
+
+    <button class="btn prev" onclick="prevQ()">Previous</button>
+    <button class="btn next" onclick="nextQ()">Next</button>
+
+    <br>
+    <a href="/" class="btn home">Back to Home</a>
+
+</div>
+
+<script>
+
+let current = 0;
+let questions = document.getElementsByClassName("question");
+let total = questions.length;
+
+function showQ(index){
+    for(let i=0;i<questions.length;i++){
+        questions[i].style.display="none";
+    }
+    questions[index].style.display="block";
+}
+
+function nextQ(){
+    if(current < total-1){
+        current++;
+        showQ(current);
+    }
+}
+
+function prevQ(){
+    if(current > 0){
+        current--;
+        showQ(current);
+    }
+}
+
+function showSolution(){
+    document.getElementById("scoreBox").style.display = "none";
+    showQ(0);
+    document.getElementById("navBtns").style.display = "block";
+}
+
+</script>
+
+</body>
+</html>
